@@ -2,7 +2,6 @@ import math
 import random
 from tkinter import *
 import time
-import winsound
 
 colours = ['snow', 'ghost white', 'white smoke', 'gainsboro', 'floral white', 'old lace',
     'linen', 'antique white', 'papaya whip', 'blanched almond', 'bisque', 'peach puff',
