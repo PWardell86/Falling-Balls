@@ -83,6 +83,7 @@ colours = ['snow', 'ghost white', 'white smoke', 'gainsboro', 'floral white', 'o
 balls = []
 heightW = 500
 widthW = 500
+
 masterP = Tk()
 masterP.title("Better Physics")
 
@@ -101,6 +102,7 @@ class ball:
     gravity = 0.1
     ball = None
 
+    pickedUp = False
     def __init__(self, colour, shape, size, speed):
         self.colour = colour
         self.shape = shape
@@ -113,35 +115,36 @@ class ball:
         self.ball = canvasP.create_oval(self.location[0], self.location[1], self.location[0] + size, self.location[1] + size, fill = self.colour)
 
     def MoveBall(self):
-        canvasP.move(self.ball, self.speedHorz, self.speedVert)
-        self.location.clear()
-        self.location = canvasP.coords(self.ball)
-        self.speedVert += 0.75
+        masterP.bind("<B1-Motion>", self.move)
 
-        if round(self.speedHorz, 1) > 0:
-            self.speedHorz -= 0.03
-        elif round(self.speedHorz, 1) < 0:
-            self.speedHorz += 0.03
-            
-        self.TouchingBounds()
-        #self.Collision() #Sorta works better
+
+        if self.pickedUp == False:
+            canvasP.move(self.ball, self.speedHorz, self.speedVert)
+            self.location.clear()
+            self.location = canvasP.coords(self.ball)
+            self.speedVert += 0.75
+
+            if round(self.speedHorz, 1) > 0:
+                self.speedHorz -= 0.03
+            elif round(self.speedHorz, 1) < 0:
+                self.speedHorz += 0.03
+                
+            self.TouchingBounds()
+            #self.Collision() #Sorta works better
 
     def TouchingBounds(self):
         if self.location[1] + self.size -1 >= heightW:
             canvasP.move(self.ball, 0, -self.size + (heightW - self.location[1]) + 3)
             self.BounceVert()
 
-
         elif self.location[1] <= 0:
             canvasP.move(self.ball, 0, -self.location[1])
             self.BounceVert()
-
 
         if self.location[0] + self.size >= widthW:
             canvasP.move(self.ball, -self.size + (widthW - self.location[0]), 0)
             self.BounceHorz()
  
-            
         elif self.location[0] <= 0:
             canvasP.move(self.ball, -self.location[0], 0)
             self.BounceHorz() 
@@ -153,15 +156,31 @@ class ball:
         self.speedHorz = -self.speedHorz
         self.speedVert = math.floor((self.speedVert * 0.9))
 
+    def move(self, event):
+        if (event.x > self.location[0] and event.x < self.location[0] + self.size) and (event.y > self.location[1] and event.y < self.location[1] + self.size):
+            self.pickedUp = True
+            lblText = ("%s, %s" % (event.x, event.y))
+            
+            ballX = canvasP.coords(self.ball)[0]
+            ballY = canvasP.coords(self.ball)[1]
+
+            canvasP.move(self.ball, (event.x - (ballX + self.size / 2)), (event.y - (ballY + self.size / 2)))
+
+            self.speedHorz = 0
+            self.speedVert = 0
+
+            self.pickedUp = False
 #----------------------Balls With Gravity-------------------------
 speeds = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 speed = [0, 0]
+
 #numOfBalls = int(input("How many balls: "))
-for x in range(0, 5):
+for x in range(0, 1):
     size = random.randint(20, 20)
     speed[0] = random.choice(speeds)
     speed[1] = random.choice(speeds)
     balls.append(ball(random.choice(colours), 0, size, speed))
+
 
 while True:
     for item in balls:
